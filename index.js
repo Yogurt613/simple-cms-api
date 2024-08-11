@@ -1,4 +1,5 @@
 import express from 'express';
+import { body, validationResult } from 'express-validator';
 
 const app = express();
 const port = 3000;
@@ -36,7 +37,14 @@ app.get('/api/customers/:id', (req, res) => {
 });
 
 // 建立客戶端點
-app.post('/api/customers', (req, res) => {
+app.post('/api/customers', [
+  body('name').notEmpty().withMessage('Name is required').isString().withMessage('Name must be a string'),
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors);
+  }
+
   const customer = {
     id: customers.length + 1,
     name: req.body.name,
@@ -48,7 +56,14 @@ app.post('/api/customers', (req, res) => {
 });
 
 // 更新客戶端點
-app.put('/api/customers/:id', (req, res) => {
+app.put('/api/customers/:id', [
+  body('name').notEmpty().withMessage('Name is required').isString().withMessage('Name must be a string'),
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors);
+  }
+
   const id = parseInt(req.params.id);
   const customer = customers.find(customer => customer.id === id);
   if (!customer) {
