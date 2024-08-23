@@ -6,16 +6,47 @@ initializeApp({
   credential: cert(serviceAccountKeyPath.replace('/C:','C:')),
 });
 
-const db = getFirestore();
-
-const run = async () => {
-  try {
-    const data = { name: 'Alice' };
-    const docRef = await db.collection('customers').add(data);
-    console.log('Document written with ID: ', docRef.id);
-  } catch (e) {
-    console.error('Error adding document: ', e);
+class Collection {
+  constructor(collection) {
+    const db = getFirestore();
+    this.collection = db.collection(collection);
   }
-};
 
-run();
+  async getItem(path) {
+    const snapshot = await this.collection.doc(path).get();
+    return snapshot.data();
+  }
+
+  async getItems() {
+    const snapshot = await this.collection.get();
+    // return snapshot.docs.map(doc=>{
+    //   const data = doc.data();
+    //   data.id = doc.id;
+    //   return data;
+    // });
+    const items = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return items;
+  }
+
+  async addItem(value) {
+    const docRef = await this.collection.add(value);
+    return docRef.id;
+  }
+
+  async updateItem(key, value) {
+    return await this.collection.doc(key).set(value);
+  }
+
+  async removeItem(key) {
+    return await this.collection.doc(key).delete();
+  }
+
+  async getCount() {
+    return (await this.collection.count().get()).data().count;
+  }
+}
+
+export default Collection;
