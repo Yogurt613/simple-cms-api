@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Collection from './collection.js';
@@ -5,6 +6,12 @@ import Collection from './collection.js';
 const app = express();
 const port = 3000;
 
+const corsOptions = {
+  origin: '*',
+  allowedHeaders:'*',
+};
+// 添加 CORS 中介層
+app.use(cors(corsOptions));
 // 啟用 JSON 解析
 app.use(express.json());
 // 取得集合
